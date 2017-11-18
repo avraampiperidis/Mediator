@@ -34,7 +34,6 @@ public class TestMediator {
                 .withStatus(200)
                 .withHeader("Content-Type", "application/json")
                 .withBody(Mock.JSON_OB)));
-        
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = wireMockRule.port();
         RestAssured.basePath = "test";
@@ -50,14 +49,11 @@ public class TestMediator {
                 .then()
                 .statusCode(200)
                 .extract().body().asString()));
-        
         JsonObject jsonData = jsonReader.readObject();
-        
         String skeleton = Mediator
                 .given(jsonData.toString())
                 .withArray(ARRAY.ALL)
-                .generateSkeleton();    
-              
+                .generateSkeleton();
         Mediator.given(jsonData.toString())
                 .withArray(ARRAY.ALL)
                 .withSkel(skeleton)
@@ -75,14 +71,11 @@ public class TestMediator {
                 .then()
                 .statusCode(200)
                 .extract().body().asString()));
-        
         JsonObject jsonData = jsonReader.readObject();
-        
         String skeleton = Mediator
                 .given(jsonData.toString())
                 .withArray(ARRAY.ALL)
-                .generateSkeleton();    
-             
+                .generateSkeleton();
         Mediator.given(Mock.JSON_3)
                 .withArray(ARRAY.ALL)
                 .withSkel(skeleton)
