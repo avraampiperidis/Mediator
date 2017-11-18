@@ -5,17 +5,17 @@
  */
 package com.protectsoft.mediator;
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.restassured.RestAssured;
 import java.io.StringReader;
-import java.math.BigDecimal;
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.json.JsonValue;
-import static org.junit.Assert.assertTrue;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import org.junit.Before;
 
 /**
  *
@@ -23,16 +23,29 @@ import org.junit.Test;
  */
 public class TestMediator {
     
+    @Rule
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
+    
+    @Before
+    public void beforeTest() {
+        stubFor(get(urlEqualTo("/test/model"))
+            .withHeader("Accept", equalTo("application/json"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody(Mock.JSON_OB)));
+        
+        RestAssured.baseURI = "http://localhost";
+        RestAssured.port = wireMockRule.port();
+        RestAssured.basePath = "test";
+    }
+    
     
     @Test
-    public void testMain() {
-        System.out.println();
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8080;
-        RestAssured.basePath = "test";
-        
+    public void testMediatorSuccess() {
         JsonReader jsonReader = Json.createReader(new StringReader(RestAssured.given()
                 .contentType("application/json")
+                .accept("application/json")
                 .get("model")
                 .then()
                 .statusCode(200)
@@ -40,78 +53,41 @@ public class TestMediator {
         
         JsonObject jsonData = jsonReader.readObject();
         
-        JsonObject skeleton = Mediator.generateSkeleton(jsonData);
-                
-        Mediator.given(jsonData)
-                .with(skeleton)
-                .exact();
-                
+        String skeleton = Mediator
+                .given(jsonData.toString())
+                .withArray(ARRAY.ALL)
+                .generateSkeleton();    
+              
+        Mediator.given(jsonData.toString())
+                .withArray(ARRAY.ALL)
+                .withSkel(skeleton)
+                .joinExact();
     }
     
     
-    @Test
-    @Ignore
-    public void testArray() {
-        System.out.println();
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8080;
-        RestAssured.basePath = "test";
-        
+    
+    @Test(expected = AssertionError.class)
+    public void testMediatorFail() {
         JsonReader jsonReader = Json.createReader(new StringReader(RestAssured.given()
                 .contentType("application/json")
-                .get("model/findAll")
+                .accept("application/json")
+                .get("model")
                 .then()
                 .statusCode(200)
                 .extract().body().asString()));
         
-        JsonArray jsonArr = jsonReader.readArray();
-        JsonArray skeleton = Mediator.generateSkeleton(jsonArr);
-                
+        JsonObject jsonData = jsonReader.readObject();
+        
+        String skeleton = Mediator
+                .given(jsonData.toString())
+                .withArray(ARRAY.ALL)
+                .generateSkeleton();    
+             
+        Mediator.given(Mock.JSON_3)
+                .withArray(ARRAY.ALL)
+                .withSkel(skeleton)
+                .joinExact();
     }
     
-    
-    
-    @Test
-    @Ignore
-    public void testArrStrings() {
-        System.out.println();
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8080;
-        RestAssured.basePath = "test";
-        
-        JsonReader jsonReader = Json.createReader(new StringReader(RestAssured.given()
-                .contentType("application/json")
-                .get("model/strings")
-                .then()
-                .statusCode(200)
-                .extract().body().asString()));
-        
-        JsonArray jsonArr = jsonReader.readArray();
-        JsonArray skeleton = Mediator.generateSkeleton(jsonArr);
-                
-        System.out.println(skeleton);
-    }
-    
-    
-    @Test
-    @Ignore
-    public void testEmptyJsonObject() {
-        System.out.println();
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8080;
-        RestAssured.basePath = "test";
-        
-        JsonReader jsonReader = Json.createReader(new StringReader(RestAssured.given()
-                .contentType("application/json")
-                .get("model/mock2")
-                .then()
-                .statusCode(200)
-                .extract().body().asString()));
-        
-        JsonObject json = jsonReader.readObject();
-        JsonObject skeleton = Mediator.generateSkeleton(json);
-                
-        System.out.println(skeleton);
-    }
     
 }
