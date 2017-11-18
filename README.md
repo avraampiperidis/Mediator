@@ -9,3 +9,4 @@ a java testing library for json skeletons/data matching between apps
 - [ ] Update Readme with examples,info, test cases
 - [ ] Test first joinAbove comparison
 - [ ] Completed tests
+- [ ] publish on maven
