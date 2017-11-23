@@ -12,5 +12,6 @@ package com.protectsoft.mediator;
 public enum ErrorType {
     EQUALITY,
     KEYNOTEXISTS,
-    KEYSNOTFOUND
+    KEYSNOTFOUND,
+    TYPEMISMATCH
 }

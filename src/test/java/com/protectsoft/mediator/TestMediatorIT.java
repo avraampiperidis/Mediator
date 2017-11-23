@@ -28,6 +28,9 @@ public class TestMediatorIT {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
     
+    /**
+     * set up stubs
+     */
     @Before
     public void beforeTest() {
         stubFor(get(urlEqualTo("/test/model"))
@@ -62,7 +65,6 @@ public class TestMediatorIT {
                 .accept("application/json")
                 .get("model")
                 .then()
-                .statusCode(200)
                 .extract().body().asString()));
         JsonObject jsonData = jsonReader.readObject();
         String skeleton = Mediator
@@ -84,7 +86,6 @@ public class TestMediatorIT {
                 .accept("application/json")
                 .get("model2")
                 .then()
-                .statusCode(200)
                 .extract().body().asString()));
         JsonObject jsonData = jsonReader.readObject();
         String skeleton = "{\"type2\":\"string\",\"type1\":\"number\",\"type3\":\"string\",\"type4\":{\"type5\":\"string\",\"type6\":\"number\"}}\n";
@@ -96,40 +97,38 @@ public class TestMediatorIT {
     }
     
     
-    @Test(expected = AssertionError.class)
+    @Test(expected = MediatorAssertionError.class)
     public void testMediatorJoinExactFail() {
         JsonReader jsonReader = Json.createReader(new StringReader(RestAssured.given()
                 .contentType("application/json")
                 .accept("application/json")
-                .get("model")
+                .get("model2")
                 .then()
-                .statusCode(200)
                 .extract().body().asString()));
-        JsonObject jsonData = jsonReader.readObject();
-        String skeleton = Mediator
-                .given(jsonData.toString())
-                .withArray(ARRAY.ALL)
-                .generateSkeleton();
-        
+        String skeleton = Json.createObjectBuilder().add("type2","string")
+                        .add("type1","number")
+                        .add("type3","string")
+                        .add("type4", Json.createObjectBuilder().add("type5","string").add("type6","number").build())
+                        .build().toString();
         AssertionError error = null;
         try {
-            Mediator.given(Mock.JSON_3)
+            Mediator.given(jsonReader.readObject().toString())
                 .withArray(ARRAY.ALL)
                 .withSkel(skeleton)
                 .joinExact();
         }catch(AssertionError ex) {
             error = ex;
+            assertTrue(error instanceof MediatorAssertionError);
+            MediatorAssertionError merror = (MediatorAssertionError)error;
+            assertEquals(ErrorType.EQUALITY.ordinal(),merror.getCode().ordinal());
+            throw merror;
         }
-        assertTrue(error instanceof MediatorAssertionError);
-        MediatorAssertionError merror = (MediatorAssertionError)error;
-        assertEquals(ErrorType.KEYSNOTFOUND,merror.getCode());
-        throw error;
     }
     
     
     @Test(expected = AssertionError.class)
     public void testMediatorJoinFail() {
-        
+        throw new MediatorAssertionError();
     }
     
 }
