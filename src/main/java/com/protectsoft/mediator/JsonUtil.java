@@ -10,6 +10,7 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.json.JsonStructure;
 import javax.json.JsonValue;
 
 /**
@@ -24,6 +25,10 @@ public class JsonUtil {
     
     public static JsonArray getJsonArray(String json) {
         return getJsonReader(json).readArray();
+    }
+    
+    public static JsonStructure getJsonStructure(String json) {
+        return getJsonReader(json).read();
     }
     
     public static boolean isJsonArray(String json) {

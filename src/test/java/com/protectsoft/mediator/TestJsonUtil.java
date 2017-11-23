@@ -5,6 +5,8 @@
  */
 package com.protectsoft.mediator;
 
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -37,6 +39,12 @@ public class TestJsonUtil {
     @Test
     public void testGetJsonArray() {
         assertNotNull(JsonUtil.getJsonArray(Mock.JSON_ARR));
+    }
+    
+    @Test
+    public void testGetJsonStructure() {
+        assertTrue(JsonUtil.getJsonStructure(Mock.JSON_OB) instanceof JsonObject);
+        assertTrue(JsonUtil.getJsonStructure(Mock.JSON_ARR) instanceof JsonArray);
     }
     
 }

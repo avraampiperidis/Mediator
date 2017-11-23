@@ -40,9 +40,12 @@ public class Mediator {
         return new SkeletonBuilder(skeleton).build();
     }
     
+    public void join() {
+        SkeletonComparator.join(skeleton);
+    }
     
     public void joinExact() {
-        SkeletonComparator.join(skeleton);
+        SkeletonComparator.joinExact(skeleton);
     }
 
     public void joinAbove() {
