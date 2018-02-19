@@ -1,6 +1,8 @@
 # Mediator
 a java testing library for json skeletons/data matching between apps
 
+[![Build Status](https://travis-ci.org/avraampiperidis/Mediator.svg?branch=master)](https://travis-ci.org/avraampiperidis/Mediator)
+
 ### Mediator --on development-status
 
 - [x] Basic structure
